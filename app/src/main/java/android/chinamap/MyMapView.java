@@ -37,7 +37,10 @@ public class MyMapView extends View {
     private Context context;
     private List<ProvinceBeen> itemList;
 
-    private float scale = 1.3f;//放大倍数1.3倍
+    //    private float scale = 1.3f;//放大倍数1.3倍
+//缩放比例
+    private float scale = 0f;
+    private float mapWidth = 773.0f, mapHeight = 568.0f;
 
     public MyMapView(Context context) {
         super(context);
@@ -74,16 +77,26 @@ public class MyMapView extends View {
     }
 
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = MeasureSpec.getSize(heightMeasureSpec);
+
+        scale = Math.min(width/mapWidth, height/mapHeight);
+
+    }
+
     private void init(Context context) {
         this.context = context;
         paint = new Paint();
         paint.setAntiAlias(true);
         loadSVG();
 
-        gestureDetectorCompat = new GestureDetectorCompat(context,new GestureDetector.SimpleOnGestureListener(){
+        gestureDetectorCompat = new GestureDetectorCompat(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
-                handleDown(e.getX(),e.getY());
+                handleDown(e.getX(), e.getY());
                 Log.d(TAG, "onDown: ");
                 return true;
             }
@@ -92,21 +105,22 @@ public class MyMapView extends View {
 
     /**
      * 处理按下事件
+     *
      * @param x
      * @param y
      */
     private void handleDown(float x, float y) {
-        if(itemList!=null){
-            ProvinceBeen temp=null;
-            for (ProvinceBeen item:itemList) {
+        if (itemList != null) {
+            ProvinceBeen temp = null;
+            for (ProvinceBeen item : itemList) {
                 //因为对图像进行放大1.3倍 所以这里需要除以放大系数
-                if(item.isTouch((int)(x/scale),(int)(y/scale))){
+                if (item.isTouch((int) (x / scale), (int) (y / scale))) {
                     //判断是否被选中 如果选中跳出循环 拿出被选中的省
                     temp = item;
                     break;
                 }
             }
-            if(temp!=null){
+            if (temp != null) {
                 provinceBeenSelect = temp;
             }
             postInvalidate();
@@ -121,7 +135,7 @@ public class MyMapView extends View {
             @Override
             public void run() {
 //                InputStream inputStream = context.getResources().openRawResource(R.raw.chinahigh);
-                InputStream inputStream = context.getResources().openRawResource(R.raw.china_svg);
+                InputStream inputStream = context.getResources().openRawResource(R.raw.chinahigh);
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();//获取DocumentBuilderFactory
                 DocumentBuilder builder = null;
 
